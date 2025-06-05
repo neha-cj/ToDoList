@@ -15,9 +15,24 @@ function loadTasks() {
                 li.innerHTML = item.task;
                 li.setAttribute("data-id", item.id);
 
-                let span = document.createElement("span");
-                span.innerHTML = "\u00d7";
-                li.appendChild(span);
+                // task text span (editable)
+                let taskSpan = document.createElement("span");
+                taskSpan.textContent = item.task;
+                taskSpan.classList.add("task-text");
+                li.appendChild(taskSpan);
+
+                // edit button
+                let editBtn = document.createElement("button");
+                editBtn.textContent = "Edit";
+                editBtn.classList.add("edit-btn");
+                li.appendChild(editBtn);
+
+                //delete button
+                let deletespan = document.createElement("span");
+                deletespan.innerHTML = "\u00d7";
+                deletespan.classList.add("delete-btn");
+                li.appendChild(deletespan);
+
                 listContainer.appendChild(li);
             });
         });
@@ -40,18 +55,45 @@ function addTask(){
     });
     
 }
-listContainer.addEventListener("click",function(e){
-    if(e.target.tagName === "LI"){
-        e.target.classList.toggle("checked");
-    }
-    else if(e.target.tagName === "SPAN"){
-        const li = e.target.parentElement;
-        const taskId =li.getAttribute("data-id");
 
+// Handle clicks on Edit and Delete buttons
+listContainer.addEventListener("click", function (e) {
+    const li = e.target.parentElement;
+    const taskId = li.getAttribute("data-id");
+
+    if (e.target.classList.contains("edit-btn")) {
+        const taskSpan = li.querySelector(".task-text");
+
+        // replace text span with input box
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = taskSpan.textContent;
+        input.classList.add("edit-input");
+
+        li.replaceChild(input, taskSpan);
+        e.target.textContent = "Save";
+
+        e.target.onclick = function () {
+            const updatedTask = input.value.trim();
+            if (!updatedTask) {
+                alert("Task cannot be empty");
+                return;
+            }
+            // send PUT request to update task
+            fetch(`http://127.0.0.1:5000/tasks/${taskId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ task: updatedTask }),
+            }).then(() => {
+                loadTasks();
+            });
+        };
+    } else if (e.target.classList.contains("delete-btn")) {
         fetch(`http://127.0.0.1:5000/tasks/${taskId}`, {
-            method: "DELETE"
-        })
-        .then(()=>loadTasks());
+            method: "DELETE",
+        }).then(() => loadTasks());
+    } else if (e.target.tagName === "LI") {
+        e.target.classList.toggle("checked");
     }
 });
 document.addEventListener("DOMContentLoaded",loadTasks);

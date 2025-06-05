@@ -53,5 +53,25 @@ def delete_task(task_id):
         return jsonify({"message": "Task deleted"}), 200
     return jsonify({"error": "Task not found"}), 404
 
+# Update task by MongoDB _id
+@app.route('/tasks/<task_id>', methods=['PUT'])
+def update_task(task_id):
+    data = request.json
+    new_task = data.get('task')
+    if not new_task:
+        return jsonify({"error": "Task content required"}), 400
+
+    result = tasks_collection.update_one(
+        {"_id": ObjectId(task_id)},
+        {"$set": {"task": new_task}}
+    )
+
+    if result.matched_count:
+        return jsonify({"message": "Task updated", "task": new_task}), 200
+    else:
+        return jsonify({"error": "Task not found"}), 404
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
