@@ -4,12 +4,17 @@ const listContainer = document.getElementById("list-container");
 
 function loadTasks() {
     fetch("http://127.0.0.1:5000/tasks")
-        .then(res => res.json())
+        .then(res => {
+            console.log(res);
+            return res.json()
+        })
         .then(data => {
             listContainer.innerHTML = "";
             data.forEach(item => {
                 let li = document.createElement("li");
                 li.innerHTML = item.task;
+                li.setAttribute("data-id", item.id);
+
                 let span = document.createElement("span");
                 span.innerHTML = "\u00d7";
                 li.appendChild(span);
@@ -21,7 +26,7 @@ function loadTasks() {
 function addTask(){
     const task =inputBox.value.trim();
     if(task === ''){
-        alert("oops! you have write something to add task");
+        alert("oops! you have to write something to add task");
         return;
     }
     fetch("http://127.0.0.1:5000/tasks",{
@@ -40,7 +45,13 @@ listContainer.addEventListener("click",function(e){
         e.target.classList.toggle("checked");
     }
     else if(e.target.tagName === "SPAN"){
-        e.target.parentElement.remove();
+        const li = e.target.parentElement;
+        const taskId =li.getAttribute("data-id");
+
+        fetch(`http://127.0.0.1:5000/tasks/${taskId}`, {
+            method: "DELETE"
+        })
+        .then(()=>loadTasks());
     }
 });
 document.addEventListener("DOMContentLoaded",loadTasks);

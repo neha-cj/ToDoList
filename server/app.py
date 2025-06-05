@@ -1,43 +1,57 @@
-from flask import Flask, request, jsonify , send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+from pymongo import MongoClient
+from bson.objectid import ObjectId
 
-#creating a flask app instance; set static folder to serve frontend files from parent dir
-app = Flask(__name__,static_folder='../')
-#enable cross-origin resource sharing so frontend can call backend API from diff origins
+# Connect to MongoDB Atlas
+client = MongoClient("mongodb+srv://cjneha:AwjxIEw0NIzKOeJn@cluster0.5tixr5t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+db = client["todo_db"]
+tasks_collection = db["tasks"]
+
+# Set up Flask app
+app = Flask(__name__, static_folder='../')
 CORS(app)
-#in memory list
-tasks = []
-#route to serve the main forntend html file
+
+# Serve frontend
 @app.route('/')
 def serve_index():
     return send_from_directory('../', 'index.html')
 
-#serve any other static files requested by the browser
 @app.route('/<path:path>')
 def serve_static(path):
     return send_from_directory('../', path)
 
-
-# API endpoint to get the list of tas
+# Get all tasks
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
-    # Return the current tasks list as JSON
+    tasks = []
+    for task in tasks_collection.find():
+        tasks.append({
+            "id": str(task["_id"]),
+            "task": task["task"]
+        })
     return jsonify(tasks)
 
-# API endpoint to add a new task
+# Add new task
 @app.route('/tasks', methods=['POST'])
 def add_task():
-     # Parse JSON data from the POST request body
     data = request.json
-    # Extract the 'task' value from the data
-    task = data.get('task')
-
-
+    task = data.get("task")
     if task:
-        # Add the new task as a dictionary to the tasks list
-        tasks.append({'task': task})
-        return jsonify({'message': 'Task added successfully'}), 201
-    return jsonify({'error': 'Task is required'}), 400
+        result = tasks_collection.insert_one({"task": task})
+        return jsonify({
+            "id": str(result.inserted_id),
+            "task": task
+        }), 201
+    return jsonify({"error": "Task is required"}), 400
+
+# Delete task by MongoDB _id
+@app.route('/tasks/<task_id>', methods=['DELETE'])
+def delete_task(task_id):
+    result = tasks_collection.delete_one({"_id": ObjectId(task_id)})
+    if result.deleted_count:
+        return jsonify({"message": "Task deleted"}), 200
+    return jsonify({"error": "Task not found"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
