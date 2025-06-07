@@ -80,12 +80,16 @@ footer a:hover {
     padding: 6px;
     border: 1px solid rgb(234, 241, 243);
     margin-bottom: 10px;
+    cursor: pointer;
 }
 .task-text{
     margin-top: 10px;
     flex-grow: 1;
-    width: 60px;
-    
+    width: 60px; 
+}
+.task-text.checked {
+    text-decoration: line-through;
+    color: gray;
 }
 .task-buttons{
     gap: 8px;

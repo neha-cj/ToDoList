@@ -15,7 +15,7 @@ function loadTasks() {
                 taskDiv.className="task";
 
                 const taskText=document.createElement("span");
-                taskText.contentEditable="true";
+                //taskText.contentEditable="true";
                 taskText.className="task-text";
                 taskText.textContent = item.task;
 
@@ -98,7 +98,7 @@ listContainer.addEventListener("click", function (e) {
         fetch(`http://127.0.0.1:5000/tasks/${taskId}`, {
             method: "DELETE",
         }).then(() => loadTasks());
-    } else if (e.target.tagName === "LI") {
+    } else if (e.target.classList.contains("task-text")) {
         e.target.classList.toggle("checked");
     }
 });
