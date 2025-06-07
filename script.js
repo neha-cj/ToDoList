@@ -5,7 +5,7 @@ const listContainer = document.getElementById("list-container");
 function loadTasks() {
     fetch("http://127.0.0.1:5000/tasks")
         .then(res => {
-            console.log(res);
+            //console.log(res);
             return res.json()
         })
         .then(data => {
@@ -15,9 +15,12 @@ function loadTasks() {
                 taskDiv.className="task";
 
                 const taskText=document.createElement("span");
-                //taskText.contentEditable="true";
                 taskText.className="task-text";
                 taskText.textContent = item.task;
+
+                if(item.done){
+                    taskText.classList.add("checked");
+                }
 
                 const buttonDiv =document.createElement("div");
                 buttonDiv.className="task-buttons";
@@ -63,10 +66,12 @@ function addTask(){
 
 // Handle clicks on Edit and Delete buttons
 listContainer.addEventListener("click", function (e) {
-    const buttondiv = e.target.parentElement;
-    const div=buttondiv.parentElement;
+    //const buttondiv = e.target.parentElement;
+    const div=e.target.closest(".task");
     const taskId = div.getAttribute("data-id");
-
+    
+    if (!taskId) return;
+    
     if (e.target.classList.contains("editbtn")) {
         const taskSpan = div.querySelector(".task-text");
 
@@ -99,7 +104,13 @@ listContainer.addEventListener("click", function (e) {
             method: "DELETE",
         }).then(() => loadTasks());
     } else if (e.target.classList.contains("task-text")) {
-        e.target.classList.toggle("checked");
+        const isChecked = e.target.classList.toggle("checked");
+        fetch(`http://127.0.0.1:5000/tasks/${taskId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ done: isChecked })
+        });
     }
+
 });
 document.addEventListener("DOMContentLoaded",loadTasks);

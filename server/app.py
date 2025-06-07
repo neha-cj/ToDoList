@@ -28,7 +28,8 @@ def get_tasks():
     for task in tasks_collection.find():
         tasks.append({
             "id": str(task["_id"]),
-            "task": task["task"]
+            "task": task["task"],
+            "done": task.get("done",False)
         })
     return jsonify(tasks)
 
@@ -38,10 +39,14 @@ def add_task():
     data = request.json
     task = data.get("task")
     if task:
-        result = tasks_collection.insert_one({"task": task})
+        result = tasks_collection.insert_one({
+            "task": task, 
+            "done":False
+            })
         return jsonify({
             "id": str(result.inserted_id),
-            "task": task
+            "task": task,
+            "done": False
         }), 201
     return jsonify({"error": "Task is required"}), 400
 
@@ -57,17 +62,23 @@ def delete_task(task_id):
 @app.route('/tasks/<task_id>', methods=['PUT'])
 def update_task(task_id):
     data = request.json
-    new_task = data.get('task')
-    if not new_task:
+    update_fields ={}
+
+    if 'task' in data:
+        update_fields['task']= data['task']
+    if 'done' in data:
+        update_fields['done'] =data['done']
+
+    if not update_fields:
         return jsonify({"error": "Task content required"}), 400
 
     result = tasks_collection.update_one(
         {"_id": ObjectId(task_id)},
-        {"$set": {"task": new_task}}
+        {"$set": update_fields}
     )
 
     if result.matched_count:
-        return jsonify({"message": "Task updated", "task": new_task}), 200
+        return jsonify({"message": "Task updated"}), 200
     else:
         return jsonify({"error": "Task not found"}), 404
 
