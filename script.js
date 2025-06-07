@@ -11,29 +11,34 @@ function loadTasks() {
         .then(data => {
             listContainer.innerHTML = "";
             data.forEach(item => {
-                let li = document.createElement("li");
-                li.innerHTML = item.task;
-                li.setAttribute("data-id", item.id);
+                const taskDiv = document.createElement("div");
+                taskDiv.className="task";
 
-                // task text span (editable)
-                let taskSpan = document.createElement("span");
-                taskSpan.textContent = item.task;
-                taskSpan.classList.add("task-text");
-                li.appendChild(taskSpan);
+                const taskText=document.createElement("span");
+                taskText.contentEditable="true";
+                taskText.className="task-text";
+                taskText.textContent = item.task;
 
-                // edit button
-                let editBtn = document.createElement("button");
-                editBtn.textContent = "Edit";
-                editBtn.classList.add("edit-btn");
-                li.appendChild(editBtn);
+                const buttonDiv =document.createElement("div");
+                buttonDiv.className="task-buttons";
 
-                //delete button
-                let deletespan = document.createElement("span");
-                deletespan.innerHTML = "\u00d7";
-                deletespan.classList.add("delete-btn");
-                li.appendChild(deletespan);
+                const editbtn =document.createElement("button");
+                editbtn.innerHTML='<i class="fa fa-pencil"></i>'
+                editbtn.className="editbtn";
+                
+                const deleteBtn = document.createElement("button");
+                deleteBtn.innerHTML='<i class="fa fa-trash"></i>'
+                deleteBtn.className="deletebtn";
 
-                listContainer.appendChild(li);
+                buttonDiv.appendChild(editbtn);
+                buttonDiv.appendChild(deleteBtn);
+
+                taskDiv.appendChild(taskText);
+                taskDiv.appendChild(buttonDiv);
+
+                taskDiv.setAttribute("data-id", item.id);
+
+                listContainer.appendChild(taskDiv);
             });
         });
 }
@@ -58,11 +63,12 @@ function addTask(){
 
 // Handle clicks on Edit and Delete buttons
 listContainer.addEventListener("click", function (e) {
-    const li = e.target.parentElement;
-    const taskId = li.getAttribute("data-id");
+    const buttondiv = e.target.parentElement;
+    const div=buttondiv.parentElement;
+    const taskId = div.getAttribute("data-id");
 
-    if (e.target.classList.contains("edit-btn")) {
-        const taskSpan = li.querySelector(".task-text");
+    if (e.target.classList.contains("editbtn")) {
+        const taskSpan = div.querySelector(".task-text");
 
         // replace text span with input box
         const input = document.createElement("input");
@@ -70,7 +76,7 @@ listContainer.addEventListener("click", function (e) {
         input.value = taskSpan.textContent;
         input.classList.add("edit-input");
 
-        li.replaceChild(input, taskSpan);
+        div.replaceChild(input, taskSpan);
         e.target.textContent = "Save";
 
         e.target.onclick = function () {
@@ -88,7 +94,7 @@ listContainer.addEventListener("click", function (e) {
                 loadTasks();
             });
         };
-    } else if (e.target.classList.contains("delete-btn")) {
+    } else if (e.target.classList.contains("deletebtn")) {
         fetch(`http://127.0.0.1:5000/tasks/${taskId}`, {
             method: "DELETE",
         }).then(() => loadTasks());
