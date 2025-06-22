@@ -1,45 +1,50 @@
 // calendar.js
 const weekContainer = document.getElementById("week-selector");
-const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-let currentISO = null;   // keeps track of what date is selected
+let currentISO = "";          // globally available selected date (YYYY-MM-DD)
 
+/** build the 7-day strip starting with Sunday */
 function generateWeek() {
+  weekContainer.innerHTML = "";      // clear any previous boxes
+
   const today = new Date();
   const sunday = new Date(today);
-  sunday.setDate(today.getDate() - today.getDay()); // go back to Sunday
+  sunday.setDate(today.getDate() - today.getDay());   // back to Sunday
 
   for (let i = 0; i < 7; i++) {
-    const d = new Date(sunday);
-    d.setDate(sunday.getDate() + i);
+    const date = new Date(sunday);
+    date.setDate(sunday.getDate() + i);
 
-    const iso = d.toISOString().split("T")[0]; // 2025-06-22
-    const div = document.createElement("div");
-    div.className = "day";
-    if (i === today.getDay()) {
-      div.classList.add("selected");
+    const iso = date.toISOString().split("T")[0];      // 2025-06-22
+    const box = document.createElement("div");
+    box.className = "day-box";
+
+    // mark today
+    if (date.toDateString() === today.toDateString()) {
+      box.classList.add("selected");
       currentISO = iso;
     }
 
-    div.innerHTML = `
-      <div class="day-name">${dayNames[d.getDay()]}</div>
-      <div class="day-date">${d.getDate()}</div>
+    // box content
+    box.innerHTML = `
+      <div class="day-name">${date.toLocaleDateString("en-US", { weekday: "short" })}</div>
+      <div class="day-date">${date.getDate()}</div>
     `;
 
-    div.addEventListener("click", () => {
-      // visual selection
-      document.querySelectorAll(".day").forEach(el => el.classList.remove("selected"));
-      div.classList.add("selected");
-      // remember & reload tasks
+    // click behaviour
+    box.addEventListener("click", () => {
+      document.querySelectorAll(".day-box").forEach(el => el.classList.remove("selected"));
+      box.classList.add("selected");
       currentISO = iso;
-      loadTasks(currentISO);   // <-- function lives in script.js
+      if (typeof loadTasks === "function") loadTasks(currentISO);  // from script.js
     });
 
-    weekContainer.appendChild(div);
+    weekContainer.appendChild(box);
   }
 }
 
-// expose today’s date so script.js can use it on first load
-window.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
   generateWeek();
-  if (currentISO) loadTasks(currentISO);
+  if (typeof loadTasks === "function" && currentISO) loadTasks(currentISO);
+  // expose for other scripts
+  window.currentISO = currentISO;
 });

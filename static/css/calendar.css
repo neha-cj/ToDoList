@@ -6,13 +6,15 @@
     gap: 10px;
     border-bottom: 1px solid #ccc;
     scroll-snap-type: x mandatory;
+    scrollbar-width: none; 
 }
+
 .day-box {
     flex: 0 0 auto;
     min-width: 60px;
     padding: 10px;
     text-align: center;
-    background-color: #f3f3f3;
+    background-color: #daa2dd;
     border-radius: 10px;
     cursor: pointer;
     scroll-snap-align: start;
@@ -20,16 +22,15 @@
 }
 
 .day-box:hover {
-    background-color: #dcdcdc;
+    background-color: #d971e9;
 }
 
 .day-box.selected {
-    background-color: #007bff;
+    background-color: #619ddd;
     color: white;
     font-weight: bold;
 }
 
-/* Optional: Add a little shadow for nicer UI */
 .day-box {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
