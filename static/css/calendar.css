@@ -1,0 +1,35 @@
+#week-selector {
+    display: flex;
+    overflow-x: auto;
+    padding: 10px 0;
+    margin: 10px 0;
+    gap: 10px;
+    border-bottom: 1px solid #ccc;
+    scroll-snap-type: x mandatory;
+}
+.day-box {
+    flex: 0 0 auto;
+    min-width: 60px;
+    padding: 10px;
+    text-align: center;
+    background-color: #f3f3f3;
+    border-radius: 10px;
+    cursor: pointer;
+    scroll-snap-align: start;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.day-box:hover {
+    background-color: #dcdcdc;
+}
+
+.day-box.selected {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+/* Optional: Add a little shadow for nicer UI */
+.day-box {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

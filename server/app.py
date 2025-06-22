@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+from flask import render_template
+import os
 
 # Connect to MongoDB Atlas
 client = MongoClient("mongodb+srv://cjneha:AwjxIEw0NIzKOeJn@cluster0.5tixr5t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
@@ -9,13 +11,15 @@ db = client["todo_db"]
 tasks_collection = db["tasks"]
 
 # Set up Flask app
-app = Flask(__name__, static_folder='../')
+app = Flask(__name__,
+            static_folder=os.path.join(os.pardir, 'static'),
+            template_folder=os.path.join(os.pardir, 'templates'))
 CORS(app)
 
 # Serve frontend
 @app.route('/')
 def serve_index():
-    return send_from_directory('../', 'index.html')
+    return render_template('index.html')
 
 @app.route('/<path:path>')
 def serve_static(path):
