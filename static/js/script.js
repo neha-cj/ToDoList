@@ -2,8 +2,8 @@ const inputBox = document.getElementById("input-box");
 const listContainer = document.getElementById("list-container");
 
 
-function loadTasks() {
-    fetch("http://127.0.0.1:5000/tasks")
+function loadTasks(date=window.currentISO) {
+    fetch(`http://127.0.0.1:5000/tasks?date=${date}`)
         .then(res => {
             //console.log(res);
             return res.json()
@@ -55,7 +55,11 @@ function addTask(){
     fetch("http://127.0.0.1:5000/tasks",{
         method: "POST",
         headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({task: task})
+        body: JSON.stringify({
+            task: task,
+            date: window.currentISO
+        })
+        
     })
     .then(() =>{
         inputBox.value= "";
@@ -113,4 +117,4 @@ listContainer.addEventListener("click", function (e) {
     }
 
 });
-document.addEventListener("DOMContentLoaded",loadTasks);
+document.addEventListener("DOMContentLoaded",() => loadTasks(window.currentISO));

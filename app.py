@@ -11,6 +11,7 @@ tasks_collection = db["tasks"]
 # Set up Flask app
 app = Flask(__name__)
 CORS(app)
+tasks_collection.delete_many({ "date": { "$exists": False } })
 
 # Render HTML with proper CSS/JS from /static/
 @app.route('/')
@@ -20,12 +21,17 @@ def serve_index():
 # Get all tasks
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
+    selected_date= request.args.get("date")
+    
+    if not selected_date:
+        return jsonify({"error":"Date id required"}),400
     tasks = []
-    for task in tasks_collection.find():
+    for task in tasks_collection.find({"date":selected_date}):
         tasks.append({
             "id": str(task["_id"]),
             "task": task["task"],
-            "done": task.get("done", False)
+            "done": task.get("done", False),
+            "date":task["date"]
         })
     return jsonify(tasks)
 
@@ -34,17 +40,21 @@ def get_tasks():
 def add_task():
     data = request.json
     task = data.get("task")
-    if task:
+    date=data.get("date")
+
+    if task and date:
         result = tasks_collection.insert_one({
             "task": task,
-            "done": False
+            "done": False,
+            "date":date
         })
         return jsonify({
             "id": str(result.inserted_id),
             "task": task,
-            "done": False
+            "done": False,
+            "date":date
         }), 201
-    return jsonify({"error": "Task is required"}), 400
+    return jsonify({"error": "Task and date are required"}), 400
 
 # Update task
 @app.route('/tasks/<task_id>', methods=['PUT'])

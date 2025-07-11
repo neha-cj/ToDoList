@@ -22,6 +22,7 @@ function generateWeek() {
     if (date.toDateString() === today.toDateString()) {
       box.classList.add("selected");
       currentISO = iso;
+      window.currentISO = iso; 
     }
 
     // box content
@@ -35,6 +36,7 @@ function generateWeek() {
       document.querySelectorAll(".day-box").forEach(el => el.classList.remove("selected"));
       box.classList.add("selected");
       currentISO = iso;
+      window.currentISO = iso; 
       if (typeof loadTasks === "function") loadTasks(currentISO);  // from script.js
     });
 
@@ -44,7 +46,6 @@ function generateWeek() {
 
 document.addEventListener("DOMContentLoaded", () => {
   generateWeek();
+  window.currentISO = currentISO; 
   if (typeof loadTasks === "function" && currentISO) loadTasks(currentISO);
-  // expose for other scripts
-  window.currentISO = currentISO;
 });
