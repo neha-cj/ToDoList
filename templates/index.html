@@ -2,14 +2,22 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/calendar.css') }}">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <title> To-Do!</title>
     </head>
     <body> 
         <div class="container">
             <div class="todo-app">
-                <h2>To-Do List <img src="images/todolist_icon.png"> </h2>
+                <!-- calendar strip -->
+                <div id="week-selector" class="week-selector"></div>
+
+                <!-- tag pills etc. -->
+                <div id="tag-filter" class="tag-filter">
+                <!-- pills are injected dynamically or hardcoded here -->
+                </div>
+                <h2>To-Do List <img src="/static/images/todolist_icon.png"> </h2>
                 <div class="row">
                     <input type="text" id="input-box" placeholder="Type your task">
                     <button onclick="addTask()">Add</button>
@@ -17,7 +25,8 @@
                 <ul id="list-container"></ul>
             </div>
         </div>
-        <script src="script.js"></script>
+        <script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     </body>
     <footer>
         <p>image credits</p>
