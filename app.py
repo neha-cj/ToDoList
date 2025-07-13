@@ -2,9 +2,11 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+import os
 
 # Connect to MongoDB Atlas
-client = MongoClient("mongodb+srv://cjneha:AwjxIEw0NIzKOeJn@cluster0.5tixr5t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongo_uri = os.getenv("MONGO_URI")
+client = MongoClient(mongo_uri)
 db = client["todo_db"]
 tasks_collection = db["tasks"]
 
